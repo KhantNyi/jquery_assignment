@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>User Management Dashboard</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    .error-text {
+      color: red;
+      font-size: 0.9rem;
+      margin-top: 4px;
+    }
+    .input-error {
+      border-color: red !important;
+    }
+  </style>
+</head>
+
+<body class="bg-light">
+  <div class="container py-5">
+    <div class="card shadow-sm">
+      <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h3 class="mb-0">User Management Dashboard</h3>
+          <span class="badge bg-secondary" id="userCount">0 users</span>
+        </div>
+
+        <!-- User Table -->
+        <table class="table table-hover">
+          <thead class="table-light">
+            <tr>
+              <th>Username</th>
+              <th>Fullname</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody id="userTable">
+            <!-- Users go here -->
+          </tbody>
+        </table>
+
+        <!-- Toggle Modal Button -->
+        <button class="btn btn-primary" id="openModalBtn">+ Add New User</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal -->
+  <div class="modal fade" id="userModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <form id="userForm">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New User</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+
+          <div class="modal-body">
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" id="username" class="form-control">
+              <small class="error-text d-none" id="usernameError">This field must not be empty</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Fullname</label>
+              <input type="text" id="fullname" class="form-control">
+              <small class="error-text d-none" id="fullnameError">This field must not be empty</small>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" id="email" class="form-control">
+              <small class="error-text d-none" id="emailError">This field must not be empty</small>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="submit" class="btn btn-primary">Create User</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- jQuery + Bootstrap JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    $(function () {
+      const users = [
+        { username: "khant", fullname: "Khant Nyi Thu", email: "khant@example.com" }
+      ];
+
+      const modal = new bootstrap.Modal(document.getElementById("userModal"));
+
+      function renderUsers() {
+        const $table = $("#userTable");
+        $table.empty();
+
+        users.forEach(u => {
+          $table.append(`
+            <tr>
+              <td>${u.username}</td>
+              <td>${u.fullname}</td>
+              <td>${u.email}</td>
+            </tr>
+          `);
+        });
+
+        $("#userCount").text(`${users.length} user${users.length !== 1 ? "s" : ""}`);
+      }
+
+      function clearForm() {
+        $("#username, #fullname, #email").val("").removeClass("input-error");
+        $(".error-text").addClass("d-none");
+      }
+
+      $("#openModalBtn").on("click", function () {
+        clearForm();
+        modal.show();
+      });
+
+      $("#userForm").on("submit", function (e) {
+        e.preventDefault();
+
+        let valid = true;
+
+        const username = $("#username").val().trim();
+        const fullname = $("#fullname").val().trim();
+        const email = $("#email").val().trim();
+
+        function checkEmpty(id, errorId, value) {
+          if (!value) {
+            $(id).addClass("input-error");
+            $(errorId).removeClass("d-none");
+            valid = false;
+          } else {
+            $(id).removeClass("input-error");
+            $(errorId).addClass("d-none");
+          }
+        }
+
+        checkEmpty("#username", "#usernameError", username);
+        checkEmpty("#fullname", "#fullnameError", fullname);
+        checkEmpty("#email", "#emailError", email);
+
+        if (!valid) return;
+
+        users.push({ username, fullname, email });
+        renderUsers();
+        clearForm();
+        modal.hide();
+      });
+
+      renderUsers();
+    });
+  </script>
+</body>
+</html>
